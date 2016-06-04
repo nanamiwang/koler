@@ -1,8 +1,8 @@
 (function(){
 	angular.module('starter')
-	.controller('CallController', ['$scope', '$state', '$timeout', '$ionicModal', 'SocketService', CallController]);
+	.controller('CallController', ['$scope', '$state', '$timeout', '$ionicModal', 'SocketService', '$rootScope', CallController]);
 	
-	function CallController($scope, $state, $timeout, $ionicModal, SocketService){
+	function CallController($scope, $state, $timeout, $ionicModal, SocketService, $rootScope){
 		
 		var r = new Random();
 
@@ -16,8 +16,12 @@
 		$scope.callIgnored = false;
 		$scope.callEnded = false;
 
-
-		SocketService.emit('login', {'id': id});
+		$scope.updateVideoPosition = function () {
+			$rootScope.$broadcast('videoView.updatePosition');
+		};
+		SocketService.on('connect', function() {
+			SocketService.emit('login', {'id': id});
+		});
 
 
 		$ionicModal.fromTemplateUrl('templates/call-modal.html', {
@@ -42,7 +46,7 @@
 				},
 				streams: {
 				  audio: true,
-				  video: false
+				  video: true
 				}
 			};
 
@@ -77,9 +81,11 @@
 		    $scope.callIgnored = false;
 			$scope.callEnded = false;
 
- 		    SocketService.emit('sendMessage', { 'id': id, 'peer_id': $scope.peer_id, type: 'call'});
 		    $scope.call_modal.show();
-			
+			$timeout(function () {
+				$scope.updateVideoPosition();
+				SocketService.emit('sendMessage', { 'id': id, 'peer_id': $scope.peer_id, type: 'call'});
+			}, 1000);
 		}
 
 
@@ -122,10 +128,11 @@
 		  
 	      $scope.callInProgress = true;
 
-	      call(false, $scope.peer_id); 
+	      call(false, $scope.peer_id);
 
 	      setTimeout(function(){
-	        SocketService.emit('sendMessage', { 'id': id, 'peer_id': $scope.peer_id, 'type': 'answer' });
+		  	$scope.updateVideoPosition();
+			SocketService.emit('sendMessage', { 'id': id, 'peer_id': $scope.peer_id, 'type': 'answer' });
 	      }, 1500);
 	    };
 
@@ -150,11 +157,10 @@
 	        	$scope.callEnded = false;
 	        	
 	        break;
-
-	        case 'phonertc_handshake':
-	          
-	            $scope.contact.receiveMessage(JSON.parse(message.data));
-	          
+		  	case 'phonertc_handshake':
+				// 断开session时,WebRTC会发送type: bye
+	          	if(typeof $scope.contact.receiveMessage != undefined)
+		            $scope.contact.receiveMessage(JSON.parse(message.data));
 	        break;
 
 	        case 'call':

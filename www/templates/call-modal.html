@@ -4,7 +4,7 @@
     Call {{ peer_id }}
   </div>
 
-  <ion-content class="padding has-header">
+  <ion-content class="padding has-header" on-scroll="updateVideoPosition()" on-scroll-complete="updateVideoPosition()">
   
     <div class="calling-container" ng-if="isCalling && !callInProgress && !callIgnored && !callEnded">
       <p>Calling to <span class="balanced">{{ peer_id }}</span>...</p>
@@ -44,5 +44,6 @@
       <button class="button button-positive button-block" ng-click="closeModal()">Go back</button>
     </div>
 
+    <video-view></video-view>
   </ion-content>
 </ion-modal-view>
