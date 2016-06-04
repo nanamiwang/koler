@@ -15,7 +15,8 @@ var users = [];
 
 io.on('connection', function(socket){
 	var sendOnlineUserList = function(s) {
-		s.emit('onlineUserList', _.map(users, 'id'));
+		// 不发送用户本人的id
+		s.emit('onlineUserList', _.map(_.reject(users, {'socket' : s.id }), 'id'));
 	};
 	socket.on('login', function(data){
 		users.push({'id': data.id, 'socket': socket.id});
@@ -31,12 +32,12 @@ io.on('connection', function(socket){
 
 	socket.on('sendMessage', function(message){
 		var peer_id = Number(message.peer_id);
-		var contact = _.find(users, { 'id': peer_id });
-		if(!contact){
-			return; 
+		var user = _.find(users, { 'id': peer_id });
+		if(!user) {
+			return;
 		}
 		console.log(JSON.stringify(message));
-		io.to(contact.socket).emit('messageReceived', message);
+		io.to(user.socket).emit('messageReceived', message);
 	});
 
 	socket.on('disconnect', function(){
@@ -44,6 +45,10 @@ io.on('connection', function(socket){
 			return user.socket == socket.id;
 		}).forEach(function(user) {
 			console.log('User disconnected: %s', user.id);
+		});
+		// 通知所有用户,该用户下线
+		users.forEach(function(user) {
+			sendOnlineUserList(io.to(user.socket));
 		});
 	});
 

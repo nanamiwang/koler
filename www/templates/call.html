@@ -13,12 +13,12 @@
     </a>
   </div>
   <div class="list">
-    <ion-item class="item-button-right" ng-repeat="user_id in user_ids" href="#">
+    <div class="item item-button-right" ng-repeat="user_id in user_ids" href="#">
       <h2>{{user_id}}</h2>
       <button class="button button-positive" ng-click="startCall($index)">
         <i class="icon ion-ios-telephone"></i>
       </button>
-    </ion-item>
+    </div>
     <ion-item ng-show="user_ids.length <= 0 && socketIoStatus == 'connected'">
       <h2>没有用户在线</h2>
     </ion-item>
