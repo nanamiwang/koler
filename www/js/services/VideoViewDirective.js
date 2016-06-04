@@ -6,13 +6,14 @@ angular.module('starter')
       replace: true,
       link: function (scope, element, attrs) {
         function updatePosition() {
-          cordova.plugins.phonertc.setVideoView({
-            container: element[0],
-            local: { 
-              position: [240, 240],
-              size: [50, 50]
-            }
-          });
+          if(window.cordova)
+            window.cordova.plugins.phonertc.setVideoView({
+              container: element[0],
+              local: {
+                position: [240, 240],
+                size: [50, 50]
+              }
+            });
         }
 
         $timeout(updatePosition, 500);

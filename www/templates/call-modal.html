@@ -1,11 +1,9 @@
 <ion-modal-view>
   <div class="bar bar-header item-input-inset bar-calm">
     <button class="button button-icon icon ion-ios-arrow-left" ng-click="closeModal('search')"></button>
-    Call {{ peer_id }}
   </div>
 
   <ion-content class="padding has-header" on-scroll="updateVideoPosition()" on-scroll-complete="updateVideoPosition()">
-  
     <div class="calling-container" ng-if="isCalling && !callInProgress && !callIgnored && !callEnded">
       <p>Calling to <span class="balanced">{{ peer_id }}</span>...</p>
 

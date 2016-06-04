@@ -14,9 +14,19 @@ var io = sock.listen(server);
 var users = [];
 
 io.on('connection', function(socket){
+	var sendOnlineUserList = function(s) {
+		s.emit('onlineUserList', _.map(users, 'id'));
+	};
 	socket.on('login', function(data){
 		users.push({'id': data.id, 'socket': socket.id});
 		console.log('User login: %s', data.id);
+		//发送在线用户列表
+		sendOnlineUserList(socket);
+	});
+
+	socket.on('queryOnlineUserList', function(data){
+		//发送在线用户列表
+		sendOnlineUserList(socket);
 	});
 
 	socket.on('sendMessage', function(message){
