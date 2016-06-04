@@ -19,13 +19,15 @@ io.on('connection', function(socket){
 		s.emit('onlineUserList', _.map(_.reject(users, {'socket' : s.id }), 'id'));
 	};
 	socket.on('login', function(data){
-		users.push({'id': data.id, 'socket': socket.id});
-		console.log('User login: %s', data.id);
+		users.push({id: data.id, socket: socket.id, platform: data.platform});
+		socket.user_id = data.id;
+		console.log('User login: %s, platform: %s', data.id, data.platform);
 		//发送在线用户列表
 		sendOnlineUserList(socket);
 	});
 
 	socket.on('queryOnlineUserList', function(data){
+		console.log('User %s requests online user list', socket.user_id);
 		//发送在线用户列表
 		sendOnlineUserList(socket);
 	});
@@ -44,7 +46,7 @@ io.on('connection', function(socket){
 		_.remove(users, function(user){
 			return user.socket == socket.id;
 		}).forEach(function(user) {
-			console.log('User disconnected: %s', user.id);
+			console.log('User disconnected: %s, platform: %s', user.id, user.platform);
 		});
 		// 通知所有用户,该用户下线
 		users.forEach(function(user) {
